@@ -1,0 +1,22 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - <backend_port>:<backend_port>
+    depends_on:
+      - database
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - <frontend_port>:<frontend_port>
+  database:
+    image: <database_image>
+    environment:
+      - <database_environment_variables>
+    volumes:
+      - <database_volume>
