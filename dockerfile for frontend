@@ -1,0 +1,7 @@
+FROM <base_image>
+WORKDIR /app/frontend
+COPY . .
+RUN <installation_commands>
+RUN <build_commands>
+EXPOSE <frontend_port>
+CMD <start_command>
