@@ -1,0 +1,33 @@
+pipeline {
+  agent any
+  
+  stages {
+    stage('Clone') {
+      steps {
+        git '<repository_url>'
+      }
+    }
+    
+    stage('Build and Push Images') {
+      steps {
+        sh 'docker build -t backend .'
+        sh 'docker build -t frontend .'
+        withCredentials([usernamePassword(credentialsId: '<aws_credentials_id>', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+          sh 'docker login -u $AWS_ACCESS_KEY_ID -p $AWS_SECRET_ACCESS_KEY <ecr_repository_url>'
+          sh 'docker tag backend <ecr_repository_url>/backend'
+          sh 'docker tag frontend <ecr_repository_url>/frontend'
+          sh 'docker push <ecr_repository_url>/backend'
+          sh 'docker push <ecr_repository_url>/frontend'
+        }
+      }
+    }
+    
+    stage('Deploy') {
+      steps {
+        sshagent(['<private_key_credentials_id>']) {
+          sh 'ssh -i <private_key_path> <remote_username>@<remote_server> docker-compose up -d'
+        }
+      }
+    }
+  }
+}
